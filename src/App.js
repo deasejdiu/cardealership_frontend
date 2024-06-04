@@ -1,48 +1,37 @@
-import React, { useState } from 'react';
-import './App.css';
-import CarCard from './CarCard';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import SignUp from "./pages/SignUpPage";
+import Login from "./pages/LoginPage";
+import Home from "./pages/HomePage";
+import BookCars from "./pages/BookCarsPage";
+import Rent from "./pages/RentPage";
+import Profile from "./pages/ProfilePage";
+import Dashboard from "./pages/DashboardPage";
+import NotFound from "./pages/Page404";
+import LoadingSpinner from "./components/ui/loading-spinner";
+import useAuthentication from "./useAuthentication";
 
-const App = () => {
-  const [cars, setCars] = useState([
-    {
-      id: 1,
-      make: 'Toyota',
-      model: 'Camry',
-      year: 2020,
-      price: 24000,
-      image: 'https://example.com/toyota-camry.jpg'
-    },
-    {
-      id: 2,
-      make: 'Honda',
-      model: 'Civic',
-      year: 2019,
-      price: 22000,
-      image: 'https://example.com/honda-civic.jpg'
-    },
-    {
-      id: 3,
-      make: 'Ford',
-      model: 'Mustang',
-      year: 2021,
-      price: 35000,
-      image: 'https://example.com/ford-mustang.jpg'
-    }
-  ]);
+function App() {
+  const { isLoggedIn, isLoading } = useAuthentication();
+
+  if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Car Dealership</h1>
-      </header>
-      <div className="car-list">
-        {cars.map(car => (
-          <CarCard key={car.id} car={car} />
-        ))}
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="home" element={<Home />} />
+        <Route path="signup" element={<SignUp />} />
+        <Route path="login" element={<Login />} />
+        <Route path="cars" element={<BookCars />} />
+        <Route path="cars/:id" element={<Rent />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;
 
