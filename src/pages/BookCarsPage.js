@@ -1,15 +1,17 @@
 import { Box, GridItem, SimpleGrid, VStack } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import Navbar from "../components/navbar/Navbar";
-import CarCard from "../components/ui/car-card";
-import Footer from "../components/footer";
-import LoadingSpinner from "../components/ui/loading-spinner";
+import Navbar from '../Components/navbar/Navbar';
+import CarCard from "../Components/ui/car-card";
+import Footer from "../Components/footer";
+import LoadingSpinner from "../Components/ui/loading-spinner"; // Corrected import path
 import SearchInput from "../Components/search";
-import AvatarMenu from "../components/navbar/avatar-menu";
-import HomeSidebarContent from "../components/home/home-sidebar-content";
-import NavbarLinks from "../components/navbar/NavbarLinks";
-import SearchContext from "../SearchContext";
+import HomeSidebarContent from "../Components/home/home-sidebar-content";
+import AvatarMenu from '../Components/navbar/avatar-menu';
+import NavbarLinks from "../Components/navbar/NavbarLinks";
+// import {SearchContext, SearchProvider} from "../SearchContext";
+import {SearchContext} from "../SearchContext";
+import  {SearchProvider} from "../SearchContext"; // Corrected import path
 
 function BookCars() {
   const { searchResults, setSearchResults } = useContext(SearchContext);

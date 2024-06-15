@@ -1,35 +1,23 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React from "react";
-import SignUp from "./pages/SignUpPage";
-import Login from "./pages/LoginPage";
-import Home from "./pages/HomePage";
-import BookCars from "./pages/BookCarsPage";
-import Rent from "./pages/RentPage";
-import Profile from "./pages/ProfilePage";
-import Dashboard from "./pages/DashboardPage";
-import NotFound from "./pages/Page404";
-import LoadingSpinner from "./components/ui/loading-spinner";
-import useAuthentication from "./useAuthentication";
+// src/App.js
+
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import CarDetails from './pages/CarDetails';
+import Contact from './pages/Contact';
+import './App.css'; // You can add global styles here
 
 function App() {
-  const { isLoggedIn, isLoading } = useAuthentication();
-
-  if (isLoading) return <LoadingSpinner />;
-
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="home" element={<Home />} />
-        <Route path="signup" element={<SignUp />} />
-        <Route path="login" element={<Login />} />
-        <Route path="cars" element={<BookCars />} />
-        <Route path="cars/:id" element={<Rent />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/car/:id" element={<CarDetails />} />
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

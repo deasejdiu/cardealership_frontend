@@ -1,7 +1,8 @@
 import { SearchIcon, Icon } from "@chakra-ui/icons";
 import { InputGroup, InputLeftElement, Input } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
-import SearchContext from "../SearchContext";
+import {SearchContext} from "../SearchContext";
+import  {SearchProvider}  from "../SearchContext"; // 
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 
