@@ -4,36 +4,36 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 
-const MyOrders = () => {
+const ContactListPage = () => {
 
     const navigate = useNavigate()
 
-  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = localStorage.getItem('userInfo');
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
   };
 
+
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await axios.get(`/api/orders/client/${userInfo?._id}`);
-        setOrders(response.data);
+        const response = await axios.get('/api/contacts/all');
+        setUsers(response.data);
         setLoading(false);
       } catch (error) {
-        setError('Error fetching orders');
+        setError('Error fetching contacts');
         setLoading(false);
       }
     };
 
-    fetchOrders();
-  }, [userInfo?._id]);
+    fetchUsers();
+  }, []);
 
   
 
@@ -57,6 +57,7 @@ const MyOrders = () => {
                 <DropdownItem to="/users-list">Users list</DropdownItem>
                 <DropdownItem to="/cars-list">Cars list</DropdownItem>
                 <DropdownItem to="/all/orders">Orders</DropdownItem>
+                <DropdownItem to="/contact">Contact</DropdownItem>
               </DropdownMenu>
             )}
           </Dropdown>
@@ -65,7 +66,7 @@ const MyOrders = () => {
     
     <div className="container mt-4">
         
-      <h2>Orders List</h2>
+      <h2>Users List</h2>
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -74,21 +75,21 @@ const MyOrders = () => {
         <table className="table table-bordered">
           <thead className='text-center'>
             <tr>
-              <th>Order ID</th>
-              <th>Chosen Car</th>
-              <th>Price</th>
-              <th>Delivered</th>
-              <th>Created At</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th></th>
             </tr>
           </thead>
           <tbody className='text-center'>
-            {orders?.map((order) => (
-              <tr key={order._id}>
-                <td>{order._id}</td>
-                <td>{order.chosenCar}</td>
-                <td>{order.price}</td>
-                <td>{order.delivered ? '✔️' : '❌'}</td>
-                <td>{new Date(order.createdAt).toLocaleString()}</td>
+            {users?.map((user) => (
+              <tr key={user._id}>
+                <td>{user.name}</td>
+                <td style={{textDecoration: 'underline', color: 'blue'}}>
+                  <a href={`mailto:${user.email}`} target="_blank" rel="noopener noreferrer">
+                    {user.email}
+                  </a>
+                </td>
+                <td><button type='btn' onClick={() => navigate(`/${user._id}/message`)} className='btn btn-sm btn-primary'>View Message</button></td>
               </tr>
             ))}
           </tbody>
@@ -153,4 +154,4 @@ const DropdownItem = styled(Link)`
   }
 `;
 
-export default MyOrders;
+export default ContactListPage;

@@ -1,29 +1,43 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = (event) => {
+
+  const navigate = useNavigate()
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async (event) => {
     event.preventDefault();
-    // Here you can implement your login logic
-    console.log(`Logging in with username: ${username} and password: ${password}`);
-    // Clear form fields after login
-    setUsername('');
-    setPassword('');
+    try {
+      const response = await axios.post('/api/users/login', { email, password });
+      console.log('Login successful:', response.data);
+      localStorage.setItem('userInfo', JSON.stringify(response.data)); // Save user info in localStorage
+      setEmail('');
+      setPassword('');
+      setError('');
+      navigate('/')
+    } catch (err) {
+      console.error('Login failed:', err.response ? err.response.data : err.message);
+      setError('Invalid email or password');
+    }
   };
 
   return (
     <LoginContainer>
       <LoginForm onSubmit={handleLogin}>
         <FormTitle>Login</FormTitle>
+        {error && <div style={{ color: 'red' }}>{error}</div>}
         <FormInput
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <FormInput
@@ -34,11 +48,12 @@ const LoginPage = () => {
           required
         />
         <SubmitButton type="submit">Login</SubmitButton>
-        <SignUpLink to="/signup">Don't have an account? Sign Up</SignUpLink>
+        <SignUpLink to="/SignUpPage">Don't have an account? Sign Up</SignUpLink>
       </LoginForm>
     </LoginContainer>
   );
 };
+
 
 const LoginContainer = styled.div`
   display: flex;

@@ -11,7 +11,7 @@ function cars() {
                         <li><a href="/">Home</a></li>
                         <li><a href="/cars">Cars</a></li>
                         <li><a href="/aboutus">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="/src/pages/Contact.js">Contact</a></li>
                     </ul>
                 </nav>
             </header>
@@ -19,7 +19,7 @@ function cars() {
             <section className="hero">
                 <h2>Welcome to our Car Rental Service</h2>
                 <p>Explore our wide range of vehicles for rent. From economy cars to luxury vehicles, we have it all!</p>
-                <a href="#" className="btn">Browse Cars</a>
+                <a href="/src/pages/BrowseCars.js" className="btn">Browse Cars</a>
             </section>
 
             <section className="featured-cars">

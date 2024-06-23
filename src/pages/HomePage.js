@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import styled from 'styled-components';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import axios from 'axios';
 
 const HomePage = () => {
+  const userInfo = localStorage.getItem('userInfo');
   const [search, setSearch] = useState('');
-  const cars = [
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const navigate = useNavigate()
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+
+  const carsDemo = [
     { id: 1, name: 'Tesla Model S', img: '/images/tesla-model-s.jpg' },
     { id: 2, name: 'Nissan Leaf', img: '/images/nissan-leaf.jpg' },
     { id: 3, name: 'Audi A5', img: '/images/audia5.jpg' },
@@ -17,10 +28,7 @@ const HomePage = () => {
     setSearch(event.target.value);
   };
 
-  const filteredCars = cars.filter((car) =>
-    car.name.toLowerCase().includes(search.toLowerCase())
-  );
-
+  
   const settings = {
     dots: true,
     infinite: true,
@@ -28,17 +36,72 @@ const HomePage = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
   };
+  
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post('/api/contacts/add', {
+        name,
+        email,
+        message
+      },);
+      console.log('Contact added successfully:', response.data);
+      setName('')
+      setEmail('')
+      setMessage('')
+    } catch (error) {
+      console.error('Add failed:', error.response ? error.response.data : error.message);
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const response = await axios.get('/api/cars/all');
+        setCars(response.data);
+        setLoading(false);
+      } catch (error) {
+        setError('Error fetching cars');
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
+
+  const filteredCars = cars.filter((car) =>
+    car.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div>
       <Navbar>
-        <NavLink to="/BookCarsPage">Book Cars</NavLink>
-        <NavLink to="/DashboardPage">Dashboard</NavLink>
-        <NavLink to="/LoginPage">Login</NavLink>
-        <NavLink to="Sales">Sales</NavLink>
-        <NavLink to="/RentPage">Rent</NavLink>
-        <NavLink to="/SignUpPage">Sign Up</NavLink>
-        <NavLink to="/BuyCars">Buy Cars</NavLink>
+        {userInfo ? null : <NavLink to="/LoginPage">Login</NavLink>}
+        {userInfo ? null : <NavLink to="/SignUpPage">Sign Up</NavLink>}
+        {userInfo ? <NavLink to="/my-deals">My orders</NavLink> : null}
+        {userInfo && (
+          <Dropdown>
+            <DropdownToggle onClick={toggleDropdown}>
+              Admin panel
+            </DropdownToggle>
+            {dropdownVisible && (
+              <DropdownMenu>
+                <DropdownItem to="/users-list">Users list</DropdownItem>
+                <DropdownItem to="/cars-list">Cars list</DropdownItem>
+                <DropdownItem to="/all/orders">Orders</DropdownItem>
+                <DropdownItem to="/contact">Contact</DropdownItem>
+                <DropdownItem>Log out</DropdownItem>
+              </DropdownMenu>
+            )}
+          </Dropdown>
+        )}
       </Navbar>
       <HomeContainer>
         <SearchBar>
@@ -53,7 +116,7 @@ const HomePage = () => {
         <ContentWrapper>
           <CarouselWrapper>
             <Slider {...settings}>
-              {cars.map((car) => (
+              {carsDemo.map((car) => (
                 <CarouselSlide key={car.id}>
                   <img src={car.img} alt={car.name} />
                   <h3>{car.name}</h3>
@@ -64,21 +127,21 @@ const HomePage = () => {
           <FeaturedCars>
             <h2>Featured Cars</h2>
             <CarList>
-              {filteredCars.map((car) => (
-                <CarItem key={car.id}>
-                  <img src={car.img} alt={car.name} />
+              {filteredCars?.map((car) => (
+                <CarItem key={car._id}>
+                  <img src={car.image} alt={car.name} />
                   <h3>{car.name}</h3>
-                  <Link to={`/car/${car.id}`}>View Details</Link>
+                  <Link to={`/car/${car._id}`}>View Details</Link>
                 </CarItem>
               ))}
             </CarList>
           </FeaturedCars>
           <ContactSection>
             <h2>Contact Us</h2>
-            <ContactForm>
-              <input type="text" placeholder="Your Name" />
-              <input type="email" placeholder="Your Email" />
-              <textarea placeholder="Your Message"></textarea>
+            <ContactForm onSubmit={submitHandler}>
+              <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Your Name" />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Your Email" />
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Message"></textarea>
               <ContactButton type="submit">Send Message</ContactButton>
             </ContactForm>
           </ContactSection>
@@ -132,6 +195,42 @@ const NavLink = styled(Link)`
   font-size: 16px;
   &:hover {
     background-color: #555;
+  }
+`;
+
+const Dropdown = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const DropdownToggle = styled.div`
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  margin: 0 5px;
+  font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    background-color: #555;
+  }
+`;
+
+const DropdownMenu = styled.div`
+  display: block;
+  position: absolute;
+  background-color: #333;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+`;
+
+const DropdownItem = styled(Link)`
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  &:hover {
+    background-color: #575757;
   }
 `;
 
@@ -200,12 +299,16 @@ const CarList = styled.div`
 `;
 
 const CarItem = styled.div`
+  display: flex;
+  flex-direction: column;
   flex: 1 1 calc(33.333% - 20px);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   text-align: center;
+  align-items: center;
+  justify-content: center;
   img {
-    width: 100%;
+    width: 30%;
     height: auto;
     border-radius: 5px;
   }

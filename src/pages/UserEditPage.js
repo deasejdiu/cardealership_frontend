@@ -3,31 +3,29 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-const OrderEditPage = () => {
+const UserEditPage = () => {
 
-    const { id: orderId } = useParams()
+    const { id: userId } = useParams()
     const navigate = useNavigate()
 
     const userInfo = localStorage.getItem('userInfo');
     const [dropdownVisible, setDropdownVisible] = useState(false);
     
-    const [order, setOrder] = useState(null);
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [clientName, setClientName] = useState('');
-    const [chosenCar, setChosenCar] = useState('');
-    const [price, setPrice] = useState(0.00);
-    const [delivered, setDelivered] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false);
   
     useEffect(() => {
-      const fetchOrder = async () => {
+      const fetchUser = async () => {
         try {
-          const response = await axios.get(`/api/orders/get/${orderId}`);
-          setOrder(response.data);
-          setClientName(response.data.clientName);
-          setChosenCar(response.data.chosenCar);
-          setPrice(response.data.price);
-          setDelivered(response.data.delivered);
+          const response = await axios.get(`/api/users/get/${userId}`);
+          setUser(response.data);
+          setName(response.data.name);
+          setEmail(response.data.email);
+          setIsAdmin(response.data.isAdmin);
           setLoading(false);
         } catch (error) {
           setError('User not found');
@@ -35,18 +33,20 @@ const OrderEditPage = () => {
         }
       };
   
-      fetchOrder();
-    }, [orderId]);
+      fetchUser();
+    }, [userId]);
   
-    const handleUpdateOrder = async (event) => {
+    const handleUpdateUser = async (event) => {
       event.preventDefault();
       try {
-        const updatedOrder = {
-          delivered: delivered,
+        const updatedUser = {
+          name: name,
+          email: email,
+          isAdmin: isAdmin,
         };
-        const response = await axios.put(`/api/orders/edit/${orderId}`, updatedOrder);
-        console.log('order updated successfully:', response.data);
-        navigate('/all/orders')
+        const response = await axios.put(`/api/users/update/${userId}`, updatedUser);
+        console.log('User updated successfully:', response.data);
+        navigate('/users-list')
       } catch (error) {
         console.error('Update failed:', error.response ? error.response.data : error.message);
       }
@@ -59,12 +59,9 @@ const OrderEditPage = () => {
    return (
     <>
       <Navbar>
-        <NavLink to="/BookCarsPage">Book Cars</NavLink>
         {userInfo ? null : <NavLink to="/LoginPage">Login</NavLink>}
-        <NavLink to="/Sales">Sales</NavLink>
-        <NavLink to="/RentPage">Rent</NavLink>
         {userInfo ? null : <NavLink to="/SignUpPage">Sign Up</NavLink>}
-        <NavLink to="/BuyCars">Buy Cars</NavLink>
+        {userInfo ? <NavLink to="/my-deals">My orders</NavLink> : null}
         {userInfo && (
           <Dropdown>
             <DropdownToggle onClick={toggleDropdown}>
@@ -75,6 +72,8 @@ const OrderEditPage = () => {
                 <DropdownItem to="/users-list">Users list</DropdownItem>
                 <DropdownItem to="/cars-list">Cars list</DropdownItem>
                 <DropdownItem to="/all/orders">Orders</DropdownItem>
+                <DropdownItem to="/contact">Contact</DropdownItem>
+                <DropdownItem>Log out</DropdownItem>
               </DropdownMenu>
             )}
           </Dropdown>
@@ -87,50 +86,39 @@ const OrderEditPage = () => {
         <p>{error}</p>
       ) : (
         <div className="container mt-4 px-5">
-          <form onSubmit={handleUpdateOrder}>
+          <form onSubmit={handleUpdateUser}>
             <div className="form-group">
-              <label htmlFor="name">Clients Name</label>
+              <label htmlFor="name">Name</label>
               <input
                 type="text"
                 className="form-control"
                 id="name"
                 placeholder="Enter name"
-                value={clientName}
-                disabled
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="form-group pt-4">
-              <label htmlFor="email">Chosen Car</label>
+              <label htmlFor="email">Email</label>
               <input
-                type="text"
+                type="email"
                 className="form-control"
                 id="email"
-                placeholder="car"
-                value={chosenCar}
-                disabled
-              />
-            </div>
-            <div className="form-group pt-4">
-              <label htmlFor="price">Price</label>
-              <input
-                type="number"
-                className="form-control"
-                id="price"
-                placeholder="price"
-                value={price}
-                disabled
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="form-check pt-4">
               <input
                 type="checkbox"
                 className="form-check-input"
-                id="delivered"
-                checked={delivered}
-                onChange={() => setDelivered(prevDelivered => !prevDelivered)}
+                id="isAdmin"
+                checked={isAdmin}
+                onChange={() => setIsAdmin(prevAdmin => !prevAdmin)}
               />
-              <label className="form-check-label" htmlFor="delivered">
-                Delivered
+              <label className="form-check-label" htmlFor="isAdmin">
+                Is Admin
               </label>
             </div>
             <div className="pt-4">
@@ -199,4 +187,4 @@ const DropdownItem = styled(Link)`
   }
 `;
 
-export default OrderEditPage
+export default UserEditPage

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Flex, Spacer, Button, Link as ChakraLink } from '@chakra-ui/react';
-import { Link } from 'react-router-dom'; // Assuming you use React Router for navigation
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (

@@ -3,55 +3,40 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-const OrderEditPage = () => {
+const ViewMessage = () => {
 
-    const { id: orderId } = useParams()
+    const { id: contactId } = useParams()
     const navigate = useNavigate()
 
     const userInfo = localStorage.getItem('userInfo');
     const [dropdownVisible, setDropdownVisible] = useState(false);
     
-    const [order, setOrder] = useState(null);
+    const [contact, setContact] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [clientName, setClientName] = useState('');
-    const [chosenCar, setChosenCar] = useState('');
-    const [price, setPrice] = useState(0.00);
-    const [delivered, setDelivered] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
   
     useEffect(() => {
-      const fetchOrder = async () => {
+      const fetchContact = async () => {
         try {
-          const response = await axios.get(`/api/orders/get/${orderId}`);
-          setOrder(response.data);
-          setClientName(response.data.clientName);
-          setChosenCar(response.data.chosenCar);
-          setPrice(response.data.price);
-          setDelivered(response.data.delivered);
+          const response = await axios.get(`/api/contacts/get/${contactId}`);
+          setContact(response.data);
+          setName(response.data.name);
+          setEmail(response.data.email);
+          setMessage(response.data.message);
           setLoading(false);
         } catch (error) {
-          setError('User not found');
+          setError('data not found');
           setLoading(false);
         }
       };
   
-      fetchOrder();
-    }, [orderId]);
+      fetchContact();
+    }, [contactId]);
   
-    const handleUpdateOrder = async (event) => {
-      event.preventDefault();
-      try {
-        const updatedOrder = {
-          delivered: delivered,
-        };
-        const response = await axios.put(`/api/orders/edit/${orderId}`, updatedOrder);
-        console.log('order updated successfully:', response.data);
-        navigate('/all/orders')
-      } catch (error) {
-        console.error('Update failed:', error.response ? error.response.data : error.message);
-      }
-    };
-  
+    
     const toggleDropdown = () => {
       setDropdownVisible(!dropdownVisible);
     };
@@ -75,6 +60,8 @@ const OrderEditPage = () => {
                 <DropdownItem to="/users-list">Users list</DropdownItem>
                 <DropdownItem to="/cars-list">Cars list</DropdownItem>
                 <DropdownItem to="/all/orders">Orders</DropdownItem>
+                <DropdownItem to="/contact">Contact</DropdownItem>
+                <DropdownItem>Log out</DropdownItem>
               </DropdownMenu>
             )}
           </Dropdown>
@@ -87,57 +74,40 @@ const OrderEditPage = () => {
         <p>{error}</p>
       ) : (
         <div className="container mt-4 px-5">
-          <form onSubmit={handleUpdateOrder}>
+          <form>
             <div className="form-group">
-              <label htmlFor="name">Clients Name</label>
+              <label htmlFor="name">Name</label>
               <input
                 type="text"
                 className="form-control"
                 id="name"
                 placeholder="Enter name"
-                value={clientName}
+                value={name}
                 disabled
               />
             </div>
             <div className="form-group pt-4">
-              <label htmlFor="email">Chosen Car</label>
-              <input
-                type="text"
+              <label htmlFor="email">Email</label>
+              <a href={`mailto:${email}`} target="_blank" rel="noopener noreferrer">
+              <div
                 className="form-control"
                 id="email"
-                placeholder="car"
-                value={chosenCar}
-                disabled
-              />
+                style={{textDecoration: 'underline', color: 'blueviolet', cursor: 'pointer'}}
+              >{email}</div>
+              </a>
             </div>
             <div className="form-group pt-4">
-              <label htmlFor="price">Price</label>
-              <input
-                type="number"
+              <label htmlFor="price">Message</label>
+              <textarea
                 className="form-control"
                 id="price"
-                placeholder="price"
-                value={price}
+                placeholder="message"
+                value={message}
                 disabled
-              />
+            ></textarea>
             </div>
-            <div className="form-check pt-4">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                id="delivered"
-                checked={delivered}
-                onChange={() => setDelivered(prevDelivered => !prevDelivered)}
-              />
-              <label className="form-check-label" htmlFor="delivered">
-                Delivered
-              </label>
-            </div>
-            <div className="pt-4">
-              <button type="submit" className="btn btn-primary px-5">
-                Submit
-              </button>
-            </div>
+            
+           
           </form>
         </div>
       )}
@@ -199,4 +169,4 @@ const DropdownItem = styled(Link)`
   }
 `;
 
-export default OrderEditPage
+export default ViewMessage

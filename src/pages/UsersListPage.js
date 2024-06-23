@@ -4,48 +4,54 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 
-const MyOrders = () => {
+const UsersListPage = () => {
 
     const navigate = useNavigate()
 
-  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = localStorage.getItem('userInfo');
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
   };
 
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm('Are you sure')) {
+        try {
+            await axios.delete(`/api/users/delete/${userId}`);
+            setUsers(users.filter((user) => user._id !== userId));
+        } catch (error) {
+            console.error('Error deleting user:', error.response ? error.response.data : error.message);
+        }
+    }
+    };
+
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await axios.get(`/api/orders/client/${userInfo?._id}`);
-        setOrders(response.data);
+        const response = await axios.get('/api/users/all');
+        setUsers(response.data);
         setLoading(false);
       } catch (error) {
-        setError('Error fetching orders');
+        setError('Error fetching users');
         setLoading(false);
       }
     };
 
-    fetchOrders();
-  }, [userInfo?._id]);
+    fetchUsers();
+  }, []);
 
   
 
   return (
     <>
     <Navbar>
-        <NavLink to="/BookCarsPage">Book Cars</NavLink>
         {userInfo ? null : <NavLink to="/LoginPage">Login</NavLink>}
-        <NavLink to="/Sales">Sales</NavLink>
-        <NavLink to="/RentPage">Rent</NavLink>
         {userInfo ? null : <NavLink to="/SignUpPage">Sign Up</NavLink>}
-        <NavLink to="/BuyCars">Buy Cars</NavLink>
         {userInfo ? <NavLink to="/my-deals">My orders</NavLink> : null}
         {userInfo && (
           <Dropdown>
@@ -57,6 +63,8 @@ const MyOrders = () => {
                 <DropdownItem to="/users-list">Users list</DropdownItem>
                 <DropdownItem to="/cars-list">Cars list</DropdownItem>
                 <DropdownItem to="/all/orders">Orders</DropdownItem>
+                <DropdownItem to="/contact">Contact</DropdownItem>
+                <DropdownItem>Log out</DropdownItem>
               </DropdownMenu>
             )}
           </Dropdown>
@@ -65,7 +73,7 @@ const MyOrders = () => {
     
     <div className="container mt-4">
         
-      <h2>Orders List</h2>
+      <h2>Users List</h2>
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -74,21 +82,26 @@ const MyOrders = () => {
         <table className="table table-bordered">
           <thead className='text-center'>
             <tr>
-              <th>Order ID</th>
-              <th>Chosen Car</th>
-              <th>Price</th>
-              <th>Delivered</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Is Admin</th>
               <th>Created At</th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody className='text-center'>
-            {orders?.map((order) => (
-              <tr key={order._id}>
-                <td>{order._id}</td>
-                <td>{order.chosenCar}</td>
-                <td>{order.price}</td>
-                <td>{order.delivered ? '✔️' : '❌'}</td>
-                <td>{new Date(order.createdAt).toLocaleString()}</td>
+            {users?.map((user) => (
+              <tr key={user._id}>
+                <td>{user._id}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.isAdmin ? '✔️' : '❌'}</td>
+
+                <td>{new Date(user.createdAt).toLocaleString()}</td>
+                <td><button type='btn' onClick={() => navigate(`/${user._id}/edit`)} className='btn btn-sm btn-primary'>Edit user</button></td>
+                <td><button type='button' onClick={() => handleDeleteUser(user._id)} className='btn btn-sm btn-danger'>Delete user</button></td>
               </tr>
             ))}
           </tbody>
@@ -153,4 +166,4 @@ const DropdownItem = styled(Link)`
   }
 `;
 
-export default MyOrders;
+export default UsersListPage;
