@@ -35,6 +35,17 @@ const ContactListPage = () => {
     fetchUsers();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/users/logout');
+      localStorage.removeItem('userInfo');
+      navigate('/LoginPage');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      // Optionally handle the error in the UI
+    }
+  };
+
   
 
   return (
@@ -58,6 +69,7 @@ const ContactListPage = () => {
                 <DropdownItem to="/cars-list">Cars list</DropdownItem>
                 <DropdownItem to="/all/orders">Orders</DropdownItem>
                 <DropdownItem to="/contact">Contact</DropdownItem>
+                <DropdownItem onClick={handleLogout}>Log out</DropdownItem>
               </DropdownMenu>
             )}
           </Dropdown>

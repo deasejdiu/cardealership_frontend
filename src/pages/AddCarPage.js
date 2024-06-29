@@ -67,6 +67,16 @@ const AddCarPage = () => {
     setDropdownVisible(!dropdownVisible);
   };
 
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/users/logout');
+      localStorage.removeItem('userInfo');
+      navigate('/LoginPage');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
 
   return (
     <>
@@ -85,7 +95,7 @@ const AddCarPage = () => {
                 <DropdownItem to="/cars-list">Cars list</DropdownItem>
                 <DropdownItem to="/all/orders">Orders</DropdownItem>
                 <DropdownItem to="/contact">Contact</DropdownItem>
-                <DropdownItem>Log out</DropdownItem>
+                <DropdownItem onClick={handleLogout}>Log out</DropdownItem>
               </DropdownMenu>
             )}
           </Dropdown>
